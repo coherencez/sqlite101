@@ -1,10 +1,10 @@
 'use strict'
-const Table = require('cli-table2')
-const table = new Table({ head: ["ID", "DATE", "COUNTRY"] });
+const        Table = require('cli-table2')
 const { Database } = require('sqlite3').verbose()
 const           db = new Database('db/Chinook_Sqlite.sqlite', (err) => {if(err) throw err})
 
 db.serialize(() => {
+
   db.all(`SELECT FirstName || ' ' || LastName AS Name,
                  CustomerId,
                  Country
@@ -13,6 +13,7 @@ db.serialize(() => {
   `, (err, customers) => {
     console.log(customers)
   })
+
   db.all(`SELECT FirstName || ' ' || LastName AS Name,
                  CustomerId,
                  Country
@@ -21,6 +22,7 @@ db.serialize(() => {
   `, (err, customers) => {
     console.log(customers)
   })
+
   db.each(`SELECT FirstName || ' ' || LastName AS Name,
                  CustomerId,
                  Country
@@ -29,6 +31,8 @@ db.serialize(() => {
   `, (err, {CustomerId, Name, Country}) => {
       console.log(`${CustomerId}: ${Name} ${Country}`)
   })
+
+  const table = new Table({ head: ["ID", "DATE", "COUNTRY"] });
   db.each(`SELECT FirstName || ' ' || LastName AS Name,
                  InvoiceId,
                  InvoiceDate,
@@ -43,6 +47,14 @@ db.serialize(() => {
         [InvoiceId, InvoiceDate, BillingCountry]
     );
   }, () => console.log(table.toString()))
+
+  const table2 = new Table({ head: ["NAME"], style: {compact: true} });
+  db.each(`SELECT FirstName || ' ' || LastName AS Name
+           FROM Employee
+           WHERE Employee.Title = "Sales Support Agent"
+           `, (err, emp) => {
+             table2.push(emp)
+           }, () => console.log(table2.toString()))
 
 })
 db.close()
